@@ -1,0 +1,88 @@
+<div class="main-container">
+    <fountain-header></fountain-header>
+    <main class="main">
+        <div class="nat-settings" ng-hide="is_connected">
+            <table>
+                <tr>
+                    <td>appId</td>
+                    <td>
+                        <input id="appId" type="text" ng-model="$storage.appId" placeholder="APP ID">
+                    </td>
+                </tr>
+                <tr>
+                    <td>appKey</td>
+                    <td>
+                        <input type="text" ng-model="$storage.appKey" placeholder="APP KEY">
+                    </td>
+                </tr>
+                <tr>
+                    <td>appSecret</td>
+                    <td>
+                        <input type="text" ng-model="$storage.appSecret" placeholder="APP SECRET">
+                    </td>
+                </tr>
+                <tr>
+                    <td>alias</td>
+                    <td>
+                        <input type="text" ng-model="$storage.alias" placeholder="">
+                    </td>
+                </tr>
+                <tr>
+                    <td>chat with</td>
+                    <td>
+                        <input type="text" ng-model="$storage.chatWith" placeholder="Chat With">
+                    </td>
+                </tr>
+                <!--<tr>-->
+                    <!--<td>ON&nbsp; Text</td>-->
+                    <!--<td>-->
+                        <!--<input type="text" ng-model="$storage.onText" placeholder="ON">-->
+                    <!--</td>-->
+                <!--</tr>-->
+                <!--<tr>-->
+                    <!--<td>OFF Text</td>-->
+                    <!--<td>-->
+                        <!--<input type="text" ng-model="$storage.offText" placeholder="OFF">-->
+                    <!--</td>-->
+                <!--</tr>-->
+            </table>
+            <div>
+                <button ng-hide="is_connected" ng-click="doConnect()">Connect</button>
+                <button ng-show="is_connected" ng-click="doDisconnect()">Disconnect</button>
+            </div>
+            <div>status: {{status}}</div>
+        </div>
+
+        <div class="the-container" ng-show="is_connected">
+            <input ng-model="switch" type="checkbox" id="toggle"/>
+            <label for="toggle"></label>
+
+            <div class="day-night-cont">
+                <span class="the-sun"></span>
+                <div class="the-moon"><span class="moon-inside"></span></div>
+            </div>
+
+            <div class="switch">
+                <div class="button">
+                    <div class="b-inside"></div>
+                </div>
+            </div>
+
+            <div class="c-window">
+                <span class="the-sun"></span>
+                <span class="the-moon"></span>
+
+                <div class="the-fox">
+                    <div type="button" class="fox-face">
+                        <section class="eyes left"></section>
+                        <section class="eyes right"></section>
+                        <span class="nose"></span>
+                        <div class="white-part"><span class="mouth"></span></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+    <fountain-footer></fountain-footer>
+</div>

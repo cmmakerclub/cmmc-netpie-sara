@@ -1,0 +1,1 @@
+ rsync -avz ./dist/ nat@cmmc.io:/home/nat/netpie/ok  --delete --verbose
