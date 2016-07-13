@@ -8,15 +8,51 @@ angular
 
 /** @ngInject */
 function MainController($scope, $localStorage) {
+    var _private = {};
     var apply = function ($scope) {
-        $scope.$apply()
-        // _.defer(function () {
-        // });
+        $scope.$apply();
     };
     var microgear;
     var vm = this;
-    $scope.is_connected = false;
 
+    var speak = function (text, endFn, startFn) {
+        _private.utterance = new SpeechSynthesisUtterance();
+
+        // _private.utterance.text = "บัตรหมายเลข " + data.cardId.split().join(" ") + " สามารถเข้าสู่ระบบได้ค่ะ";
+        _private.utterance.text = text;
+// _private.utterance.text = "สวัสดีก้าว";
+// _private.utterance.text = "สวัสดีน้องแมน: " + new Date();
+// _private.utterance.text = new Date().toString();
+// _private.utterance.text = "Card number " + data.cardId;
+// _private.utterance.text += "Permission granted ";
+// _private.utterance.text += "How can I serve you today?";
+// _private.utterance.lang = 'en-UK';
+// _private.utterance.rate = 2;
+// _private.utterance.pitch = 0;
+// _private.utterance.rate = 0.1;
+        _private.utterance.pitch = 1.0;
+// _private.utterance.volume = 0.5;
+        _private.utterance.lang = 'th-TH';
+
+
+        _private.utterance.onstart = function (event) {
+            if (startFn) {
+                startFn(event);
+            }
+        };
+
+        _private.utterance.onend = function (event) {
+            if (endFn) {
+                endFn(event);
+            }
+        };
+    };
+
+    speak("มีอะไรให้ช่วยบ้าง? ", function () {
+
+    });
+
+    $scope.is_connected = false;
     $scope.status = 'Waiting..';
 
     $scope.$storage = $localStorage.$default({
@@ -31,12 +67,18 @@ function MainController($scope, $localStorage) {
 
     $storage = $scope.$storage;
 
-    $scope.$watch('switch', function(newVal, oldVal) {
+
+    $scope.$on('$viewContentLoaded', function () {
+        console.log("LOADED");
+    });
+
+    $scope.$watch('switch', function (newVal, oldVal) {
         console.log("SWITCH CHANGED", arguments);
         if (newVal === undefined) {
             return;
         }
-        var text= {
+
+        var text = {
             true: $storage.onText,
             false: $storage.offText,
         };
