@@ -16,25 +16,11 @@ function MainController($scope, $localStorage) {
     var vm = this;
 
     var speak = function (text, endFn, startFn) {
+        console.log("SPEAKING...");
         _private.utterance = new SpeechSynthesisUtterance();
-
-        // _private.utterance.text = "บัตรหมายเลข " + data.cardId.split().join(" ") + " สามารถเข้าสู่ระบบได้ค่ะ";
         _private.utterance.text = text;
-// _private.utterance.text = "สวัสดีก้าว";
-// _private.utterance.text = "สวัสดีน้องแมน: " + new Date();
-// _private.utterance.text = new Date().toString();
-// _private.utterance.text = "Card number " + data.cardId;
-// _private.utterance.text += "Permission granted ";
-// _private.utterance.text += "How can I serve you today?";
-// _private.utterance.lang = 'en-UK';
-// _private.utterance.rate = 2;
-// _private.utterance.pitch = 0;
-// _private.utterance.rate = 0.1;
         _private.utterance.pitch = 1.0;
-// _private.utterance.volume = 0.5;
         _private.utterance.lang = 'th-TH';
-
-
         _private.utterance.onstart = function (event) {
             if (startFn) {
                 startFn(event);
@@ -46,11 +32,11 @@ function MainController($scope, $localStorage) {
                 endFn(event);
             }
         };
+
+        window.speechSynthesis.speak(_private.utterance);
     };
 
-    speak("มีอะไรให้ช่วยบ้าง? ", function () {
 
-    });
 
     $scope.is_connected = false;
     $scope.status = 'Waiting..';
@@ -110,6 +96,9 @@ function MainController($scope, $localStorage) {
         $scope.status = 'Connecting..';
         microgear.subscribe('/#');
         microgear.on('connected', function () {
+            speak("สวัสดี CMMC, มีอะไรให้ช่วยบ้าง?", function () {
+
+            });
             // this.status = "connected";
             console.log('Connected...');
             $scope.status = 'Connected..';
