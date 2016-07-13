@@ -20,6 +20,8 @@ function MainController($scope, $localStorage) {
         _private.utterance = new SpeechSynthesisUtterance();
         _private.utterance.text = text;
         _private.utterance.pitch = 1.0;
+        _private.utterance.volume = 1.0;
+        _private.utterance.rate = 1.2;
         _private.utterance.lang = 'th-TH';
         _private.utterance.onstart = function (event) {
             if (startFn) {
@@ -33,8 +35,11 @@ function MainController($scope, $localStorage) {
             }
         };
 
-        window.speechSynthesis.speak(_private.utterance);
+        window.speechSynthesis.speak(_private.utterance, function () {
+            console.log("SPEAKING CALLBACK", arguments);
+        });
     };
+
 
 
 
@@ -96,7 +101,7 @@ function MainController($scope, $localStorage) {
         $scope.status = 'Connecting..';
         microgear.subscribe('/#');
         microgear.on('connected', function () {
-            speak("สวัสดี CMMC, มีอะไรให้ช่วยบ้าง?", function () {
+            speak("เชื่อมต่อ NET PIE แล้ว, มีอะไรให้ช่วยบ้าง?", function () {
 
             });
             // this.status = "connected";
