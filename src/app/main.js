@@ -8,39 +8,151 @@ angular
 
 /** @ngInject */
 function MainController($scope, $localStorage) {
-    var _private = {};
     var apply = function ($scope) {
         $scope.$apply();
     };
     var microgear;
     var vm = this;
+    var final_transcript = '';
+    var start_timestamp;
 
     var speak = function (text, endFn, startFn) {
         console.log("SPEAKING...");
-        _private.utterance = new SpeechSynthesisUtterance();
-        _private.utterance.text = text;
-        _private.utterance.pitch = 1.0;
-        _private.utterance.volume = 1.0;
-        _private.utterance.rate = 1.2;
-        _private.utterance.lang = 'th-TH';
-        _private.utterance.onstart = function (event) {
+        vm.utterance = new SpeechSynthesisUtterance();
+        vm.utterance.text = text;
+        vm.utterance.pitch = 1.0;
+        vm.utterance.volume = 1.0;
+        vm.utterance.rate = 1;
+        vm.utterance.lang = 'th-TH';
+        vm.utterance.onstart = function (event) {
             if (startFn) {
                 startFn(event);
             }
         };
 
-        _private.utterance.onend = function (event) {
+        vm.utterance.onend = function (event) {
             if (endFn) {
                 endFn(event);
             }
         };
 
-        window.speechSynthesis.speak(_private.utterance, function () {
+        window.speechSynthesis.speak(vm.utterance, function () {
             console.log("SPEAKING CALLBACK", arguments);
         });
     };
 
 
+    var upgrade = function () {
+        console.log("UPGRADE");
+        $scope.msg = "SHOULD BE UPGRADE";
+    };
+
+    if (!('webkitSpeechRecognition' in window)) {
+        upgrade();
+    }
+    else {
+        $scope.recognition = new webkitSpeechRecognition();
+        $scope.recognition.lang = "th-TH";
+        $scope.recognition.continuous = true;
+        $scope.recognition.interimResults = true;
+
+        $scope.recognition.onstart = function () {
+            $scope.recognizing = true;
+            console.log("ON START", arguments);
+        };
+
+        $scope.recognition.onend = function () {
+            console.log("ON END", arguments);
+            $scope.recognizing = false;
+            if ($scope.ignore_onend) {
+                return;
+            }
+        };
+
+        $scope.recognition.onerror = function (event) {
+            console.log("ERROR");
+            if (event.error == 'no-speech') {
+                // start_img.src = 'mic.gif';
+                // showInfo('info_no_speech');
+                $scope.ignore_onend = true;
+            }
+
+            if (event.error == 'audio-capture') {
+                $scope.ignore_onend = true;
+            }
+
+            if (event.error == 'not-allowed') {
+                // if (event.timeStamp - start_timestamp < 100) {
+                //   showInfo('info_blocked');
+                // } else {
+                //   showInfo('info_denied');
+                // }
+                $scope.ignore_onend = true;
+            }
+        };
+
+        $scope.recognition.onresult = function (event) {
+            // console.log("on_result", event);
+            // var regEx= /^([-+])?(\d*)$/i;
+            var patt = /(เปิด|ปิด)(ไฟ)(.*)/i
+            var interim_transcript = '';
+            for (var i = event.resultIndex; i < event.results.length; ++i) {
+                // console.log(event.results[i]);
+                var matches=[];
+                if (event.results[i].isFinal) {
+                    // final_transcript += event.results[i][0].transcript;
+                    final_transcript = event.results[i][0].transcript;
+                    matches = final_transcript.match(patt);
+                    console.log("matches", matches);
+                    if (matches != null) {
+                        $scope.recognition.stop();
+                        $scope.command = matches;
+                        speak(matches[0], function() {
+                            $scope.start_regcognize();
+                        });
+                    }
+                } else {
+                    interim_transcript += event.results[i][0].transcript;
+                    interim_transcript += ",";
+                    matches = interim_transcript.match(patt);
+                    // console.log("matches", matches);
+                    // if (matches != null) {
+                    //     $scope.recognition.stop();
+                    //     $scope.command = matches;
+                    //     speak(matches[0], function() {
+                    //         $scope.start_regcognize();
+                    //     });
+                    // }
+                }
+
+
+                $scope.interim = interim_transcript;
+                apply($scope);
+
+            }
+
+            $scope.final_text = final_transcript;
+            console.log($scope.final_text);
+            $scope.recognizing = false;
+            apply($scope);
+        }
+    }
+
+    $scope.start_regcognize = function () {
+        if ($scope.recognizing) {
+            console.log("STOP");
+            $scope.recognition.stop();
+            return;
+        }
+
+        final_transcript = '';
+        // $scope.recognition.lang = "th-TH";
+        $scope.recognition.start();
+
+        $scope.ignore_onend = false;
+        start_timestamp = event.timeStamp;
+
+    };
 
 
     $scope.is_connected = false;
@@ -101,8 +213,9 @@ function MainController($scope, $localStorage) {
         $scope.status = 'Connecting..';
         microgear.subscribe('/#');
         microgear.on('connected', function () {
-            speak("เชื่อมต่อ NET PIE แล้ว, มีอะไรให้ช่วยบ้าง?", function () {
-
+            speak("ระบบเชื่อมต่อแล้ว, มีอะไรให้ช่วยเหลือคะ", function () {
+                console.log("DONRE");
+                $scope.start_regcognize();
             });
             // this.status = "connected";
             console.log('Connected...');
